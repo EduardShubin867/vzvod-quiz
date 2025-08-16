@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Викторина: Кто ты из Мрачного Взвода?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Vollkorn:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for the quiz */
+        body {
+            font-family: 'Vollkorn', serif;
+            background: radial-gradient(ellipse at center, #2c2c2c 0%, #1a1a1a 100%);
+            color: #e0e0e0;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+        }
+        .quiz-container {
+            background-color: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid #4a3a1f;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .title-font {
+            font-family: 'Marck Script', cursive;
+            color: #e5c100; /* A richer gold color */
+            text-shadow: 0 0 10px rgba(229, 193, 0, 0.5);
+        }
+        .btn-primary {
+            background: linear-gradient(145deg, #e5c100, #c0a100);
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(229, 193, 0, 0.2);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(229, 193, 0, 0.4);
+        }
+        .btn-answer {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid #4a3a1f;
+            transition: all 0.3s ease;
+            color: #ccc;
+            text-align: left;
+        }
+        .btn-answer:hover {
+            background-color: rgba(229, 193, 0, 0.2);
+            border-color: #e5c100;
+            color: #fff;
+            transform: translateX(5px);
+        }
+        .result-card {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border: 1px solid #e5c100;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+        .progress-bar-bg {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #c0a100, #e5c100);
+            transition: width 0.5s ease-in-out;
+        }
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        .fade-out {
+            animation: fadeOut 0.5s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="quiz-app" class="quiz-container w-full max-w-2xl mx-auto rounded-xl shadow-2xl p-6 md:p-8">
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="fade-in">
+            <h1 class="title-font text-5xl md:text-6xl text-center mb-4">Кто ты из Мрачного Взвода?</h1>
+            <p class="text-center text-lg text-gray-300 mb-8">Тьма сгущается. Невесты Зверя плетут интриги. Чей клинок ты поднимешь в грядущей битве? Ответь на вопросы, чтобы узнать свою судьбу.</p>
+            <button id="start-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-xl">Начать</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="mb-6">
+                <p id="question-counter" class="text-sm text-gray-400 text-center mb-2"></p>
+                <div class="progress-bar-bg w-full rounded-full h-2.5">
+                    <div id="progress-bar" class="progress-bar-fill h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+            <div id="question-wrapper">
+                <h2 id="question-text" class="text-2xl md:text-3xl font-bold text-center mb-8"></h2>
+                <div id="answers-container" class="space-y-4">
+                    <!-- Answer buttons will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden text-center">
+            <h2 class="text-2xl text-gray-300 mb-2">Твой путь подобен пути...</h2>
+            <h1 id="result-name" class="title-font text-5xl md:text-6xl mb-4"></h1>
+            <div class="result-card p-6 rounded-lg mb-6">
+                <p id="result-description" class="text-lg leading-relaxed"></p>
+            </div>
+            <button id="restart-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-xl">Пройти еще раз</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Quiz Data
+        const quizData = {
+            questions: [
+                {
+                    text: "Как ты воспринимаешь границу между порядком и хаосом?",
+                    answers: [
+                        { text: "Порядок — это клетка. Истинная сила рождается в диком, необузданном хаосе.", character: "varna" },
+                        { text: "Это хрупкая граница, которую я пересек однажды. Теперь я вечно иду по ней, пытаясь удержать равновесие.", character: "dariy" },
+                        { text: "Порядок – это долг, который нужно поддерживать любой ценой, даже если ради него приходится использовать хаос как оружие.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Могущественный артефакт предлагает выбор: исправить главную ошибку прошлого или получить знание, которое защитит всех в будущем.",
+                    answers: [
+                        { text: "Прошлое сделало меня тем, кто я есть. Я выберу знание, чтобы защитить тех, кто остался.", character: "varna" },
+                        { text: "Исправить ошибку. Моя жизнь – это последствие одного неверного шага, и я бы отдал все, чтобы это изменить.", character: "dariy" },
+                        { text: "Знание. Личные сожаления ничто по сравнению с долгом перед миром.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Что для тебя одиночество?",
+                    answers: [
+                        { text: "Это ярость, запертая внутри. Она согревает, но и сжигает.", character: "varna" },
+                        { text: "Это холодное эхо в пустой комнате. Постоянное напоминание о том, что ты уже не принадлежишь миру живых.", character: "dariy" },
+                        { text: "Это стена, которую я построил сам, чтобы уберечь других от того, что скрывается за ней.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Твой путь окутан сумерками. Что служит тебе путеводной звездой?",
+                    answers: [
+                        { text: "Звериный инстинкт и стук сердца близкого человека.", character: "varna" },
+                        { text: "Память о том, кем я был, и надежда однажды обрести покой.", character: "dariy" },
+                        { text: "Чувство долга, холодное и ясное, как свет далекой звезды.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Какое из этих утверждений о силе тебе ближе?",
+                    answers: [
+                        { text: "Истинная сила инстинктивна, она рвется наружу, когда слова бессильны.", character: "varna" },
+                        { text: "Сила в том, чтобы сдерживать монстра внутри, а не выпускать его на волю.", character: "dariy" },
+                        { text: "Сила – это инструмент для достижения высшей цели, и её происхождение не имеет значения.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Мир вокруг рушится. На что ты опираешься в первую очередь?",
+                    answers: [
+                        { text: "На клятву, данную тем, кого считаю семьей. Их безопасность – мой единственный закон.", character: "varna" },
+                        { text: "На обрывки воспоминаний о нормальной жизни, которые помогают мне оставаться человеком.", character: "dariy" },
+                        { text: "На кодекс чести и долг. Эмоции – роскошь, которую нельзя себе позволить.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Какой шрам болит сильнее всего?",
+                    answers: [
+                        { text: "Тот, что оставило предательство самого близкого человека.", character: "varna" },
+                        { text: "Тот, что отделяет меня от мира, к которому я когда-то принадлежал.", character: "dariy" },
+                        { text: "Тот, который я скрываю ото всех, потому что он может уничтожить их.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Что для тебя значит “дом”?",
+                    answers: [
+                        { text: "Это не место, а люди, за которых я готова умереть.", character: "varna" },
+                        { text: "Это утерянный рай, воспоминание, которое одновременно греет и причиняет боль.", character: "dariy" },
+                        { text: "Это крепость, которую я должен защищать, даже если сам нахожусь за её стенами.", character: "svyat" }
+                    ]
+                },
+                 {
+                    text: "Перед тобой два пути: один ведет к личному искуплению, другой – к спасению многих, но ценой твоего проклятия. Твой выбор?",
+                    answers: [
+                        { text: "Я уже проклята. Спасение других – единственный смысл, который остался.", character: "varna" },
+                        { text: "Я всю жизнь ищу искупления, но не ценой страданий других. Я найду третий путь.", character: "dariy" },
+                        { text: "Мое личное проклятие не имеет значения, если на кону стоит высшее благо.", character: "svyat" }
+                    ]
+                },
+                {
+                    text: "Какая музыка созвучна твоей душе?",
+                    answers: [
+                        { text: "Дикий, первобытный бой барабанов, от которого кровь стынет в жилах.", character: "varna" },
+                        { text: "Тихая, заупокойная мелодия флейты, звучащая на пустом кладбище.", character: "dariy" },
+                        { text: "Строгий, торжественный хорал, звучащий под сводами древнего храма.", character: "svyat" }
+                    ]
+                }
+            ],
+            results: {
+                varna: {
+                    name: "Варна",
+                    description: "Ты — это буря, дикая и неукротимая. Твои действия продиктованы сердцем, а не холодным расчетом. Ты яростно защищаешь тех, кто тебе дорог, и готова пойти на любую жертву ради них. Внутри тебя дремлет древняя сила, которую ты одновременно боишься и принимаешь. Твой путь — это вечная борьба между долгом, чувствами и своей истинной, первобытной натурой."
+                },
+                dariy: {
+                    name: "Дарий",
+                    description: "Ты — душа, отмеченная проклятием, но не сломленная им. Ты несешь тяжкое бремя, но отчаянно цепляешься за свою человечность, отказываясь становиться чудовищем. Твой главный инструмент — не сила, а мудрость и сострадание. Ты ищешь искупления и пытаешься найти баланс между светом и тьмой, вечно находясь на границе двух миров, но сохраняя верность своим принципам."
+                },
+                svyat: {
+                    name: "Свят",
+                    description: "Ты — одинокий воин, идущий по пути долга, но скрывающий глубокую тайну. Внешне ты можешь казаться холодным и отстраненным, но внутри тебя бушует конфликт. Твоя истинная сила — это одновременно и твой дар, и твое проклятие, которое ты несешь в одиночестве. Ты привык полагаться только на себя, и твой путь — это путь самодисциплины, жертвенности и вечного внутреннего противостояния."
+                }
+            }
+        };
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        const questionWrapper = document.getElementById('question-wrapper');
+        const questionText = document.getElementById('question-text');
+        const answersContainer = document.getElementById('answers-container');
+        const questionCounter = document.getElementById('question-counter');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const resultName = document.getElementById('result-name');
+        const resultDescription = document.getElementById('result-description');
+
+        // Quiz State
+        let currentQuestionIndex = 0;
+        let scores = { varna: 0, dariy: 0, svyat: 0 };
+
+        // Functions
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            scores = { varna: 0, dariy: 0, svyat: 0 };
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            questionWrapper.classList.add('fade-in');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData.questions[currentQuestionIndex];
+            questionText.textContent = question.text;
+            answersContainer.innerHTML = '';
+            
+            const progress = ((currentQuestionIndex) / quizData.questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            questionCounter.textContent = `Вопрос ${currentQuestionIndex + 1} из ${quizData.questions.length}`;
+
+            question.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.textContent = answer.text;
+                button.className = 'btn-answer w-full py-3 px-5 rounded-lg text-lg';
+                button.onclick = () => selectAnswer(answer.character);
+                answersContainer.appendChild(button);
+            });
+        }
+
+        function selectAnswer(character) {
+            scores[character]++;
+            currentQuestionIndex++;
+            
+            questionWrapper.classList.add('fade-out');
+
+            setTimeout(() => {
+                if (currentQuestionIndex < quizData.questions.length) {
+                    questionWrapper.classList.remove('fade-out');
+                    questionWrapper.classList.remove('fade-in');
+                    // A trick to restart animation
+                    void questionWrapper.offsetWidth; 
+                    questionWrapper.classList.add('fade-in');
+                    showQuestion();
+                } else {
+                    showResult();
+                }
+            }, 500); // Wait for fade-out animation to finish
+        }
+
+        function showResult() {
+            progressBar.style.width = '100%';
+            const finalScores = Object.entries(scores);
+            finalScores.sort((a, b) => b[1] - a[1]);
+            const winner = finalScores[0][0];
+            const resultData = quizData.results[winner];
+
+            resultName.textContent = resultData.name;
+            resultDescription.textContent = resultData.description;
+
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            resultScreen.classList.add('fade-in');
+        }
+
+        // Event Listeners
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', startQuiz);
+
+    </script>
+</body>
+</html>
