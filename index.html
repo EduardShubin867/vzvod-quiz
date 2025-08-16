@@ -23,12 +23,12 @@
             font-family: 'Vollkorn', serif;
             background-color: var(--bg-dark);
             color: var(--parchment);
-            background-image: url('https://www.transparenttextures.com/patterns/worn-dots.png');
+            /* Removed the distracting background image */
+            background-image: url('https://www.transparenttextures.com/patterns/crissxcross.png'); /* A more subtle texture */
         }
 
         .quiz-container {
             background-color: #1f1b17;
-            background-image: url('https://www.transparenttextures.com/patterns/crissxcross.png');
             border: 2px solid var(--border-color);
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.6);
             border-radius: 4px;
@@ -115,9 +115,9 @@
         
         <!-- Start Screen -->
         <div id="start-screen" class="fade-in">
-            <h1 class="title-font text-5xl md:text-6xl text-center mb-4">Кто ты из Мрачного Взвода?</h1>
-            <p class="text-center text-lg text-gray-300 mb-8">Тьма сгущается. Невесты Зверя плетут интриги. Чей клинок ты поднимешь в грядущей битве? Ответь на вопросы, чтобы узнать свою судьбу.</p>
-            <button id="start-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-xl">Начать</button>
+            <h1 class="title-font text-4xl sm:text-5xl md:text-6xl text-center mb-4">Кто ты из Мрачного Взвода?</h1>
+            <p class="text-center text-md sm:text-lg text-gray-300 mb-8">Тьма сгущается. Невесты Зверя плетут интриги. Чей клинок ты поднимешь в грядущей битве? Ответь на вопросы, чтобы узнать свою судьбу.</p>
+            <button id="start-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-lg sm:text-xl">Начать</button>
         </div>
 
         <!-- Quiz Screen -->
@@ -129,8 +129,8 @@
                 </div>
             </div>
             <div id="question-wrapper">
-                <h2 id="question-text" class="text-2xl md:text-3xl font-bold text-center mb-8"></h2>
-                <div id="answers-container" class="space-y-4">
+                <h2 id="question-text" class="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8"></h2>
+                <div id="answers-container" class="space-y-3 sm:space-y-4">
                     <!-- Answer buttons will be injected here -->
                 </div>
             </div>
@@ -138,12 +138,12 @@
 
         <!-- Result Screen -->
         <div id="result-screen" class="hidden text-center">
-            <h2 class="text-2xl text-gray-300 mb-2">Твой путь подобен пути...</h2>
-            <h1 id="result-name" class="title-font text-5xl md:text-6xl mb-4"></h1>
-            <div class="result-card p-6 rounded-lg mb-6">
-                <p id="result-description" class="text-lg leading-relaxed"></p>
+            <h2 class="text-xl sm:text-2xl text-gray-300 mb-2">Твой путь подобен пути...</h2>
+            <h1 id="result-name" class="title-font text-4xl sm:text-5xl md:text-6xl mb-4"></h1>
+            <div class="result-card p-4 sm:p-6 rounded-lg mb-6">
+                <p id="result-description" class="text-md sm:text-lg leading-relaxed"></p>
             </div>
-            <button id="restart-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-xl">Пройти еще раз</button>
+            <button id="restart-btn" class="btn-primary w-full py-3 px-4 font-bold rounded-lg text-lg sm:text-xl">Пройти еще раз</button>
         </div>
 
     </div>
@@ -293,7 +293,7 @@
             question.answers.forEach(answer => {
                 const button = document.createElement('button');
                 button.textContent = answer.text;
-                button.className = 'btn-answer w-full py-3 px-5 rounded-lg text-lg';
+                button.className = 'btn-answer w-full py-3 px-5 rounded-lg text-base sm:text-lg';
                 button.onclick = () => selectAnswer(answer.character);
                 answersContainer.appendChild(button);
             });
